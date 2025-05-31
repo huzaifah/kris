@@ -1,0 +1,103 @@
+@page "/registration-success"
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.JSInterop
+@using Kris.Services
+@using Kris.Models
+@inject NavigationManager NavigationManager
+@inject RegistrationService RegistrationService
+@inject ExcelExportService ExcelExportService
+@inject IJSRuntime JSRuntime
+
+<div class="container py-5">
+    <div class="card text-center success-card">
+        <div class="card-body p-5">
+            <div class="mb-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            </div>
+            <h2 class="card-title mb-4">Pendaftaran Berjaya!</h2>
+            <p class="card-text mb-4">
+                Pendaftaran anda untuk pertandingan sains telah berjaya dihantar.
+                @if (!string.IsNullOrEmpty(YearName) && !string.IsNullOrEmpty(ClassName))
+                {
+                    <br/>
+                    <span class="text-muted">Tahun: @YearName | Kelas: @ClassName</span>
+                }
+            </p>
+            <div class="mt-4 d-flex justify-content-center gap-2">
+                <button class="btn btn-primary" @onclick="@(() => NavigationManager.NavigateTo("/register"))">
+                    <i class="bi bi-plus-circle me-1"></i>Pendaftaran Baru
+                </button>
+                <button class="btn btn-success" @onclick="ExportCurrentRegistration">
+                    <i class="bi bi-file-earmark-excel me-1"></i>Eksport Pendaftaran
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .success-card {
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
+        border-radius: 1rem;
+        animation: slideIn 0.5s ease-out;
+    }
+
+    @@keyframes slideIn {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+@code {
+    private string? YearName { get; set; }
+    private string? ClassName { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryParameters = QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryParameters.TryGetValue("yearName", out var yearName))
+        {
+            YearName = yearName.ToString();
+        }
+        if (queryParameters.TryGetValue("className", out var className))
+        {
+            ClassName = className.ToString();
+        }
+    }
+
+    private async Task ExportCurrentRegistration()
+    {
+        if (string.IsNullOrEmpty(YearName) || string.IsNullOrEmpty(ClassName))
+            return;
+
+        var registrations = await RegistrationService.GetRegistrationsGroupedAsync();
+        if (registrations.TryGetValue(YearName, out var yearGroup)
+            && yearGroup.TryGetValue(ClassName, out var classRegistrations))
+        {
+            var singleRegistration = new Dictionary<string, Dictionary<string, List<Registration>>>
+            {
+                { YearName, new Dictionary<string, List<Registration>> {
+                    { ClassName, new List<Registration> { classRegistrations.Last() } }
+                }}
+            };
+
+            var fileBytes = await ExcelExportService.ExportRegistrationsToExcel(singleRegistration);
+            await JSRuntime.InvokeVoidAsync(
+                "downloadFileFromStream", 
+                $"registration_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx", 
+                Convert.ToBase64String(fileBytes)
+            );
+        }
+    }
+}

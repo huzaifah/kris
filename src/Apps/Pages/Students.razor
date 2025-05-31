@@ -1,0 +1,81 @@
+@page "/students"
+@using Kris.Services
+@using Kris.Models
+@using Microsoft.JSInterop
+@inject RegistrationService RegistrationService
+@inject ExcelExportService ExcelExportService
+@inject IJSRuntime JSRuntime
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Pelajar mengikut Tahun dan Kelas</h3>
+    @if (_registrations != null && _registrations.Any())
+    {
+        <button class="btn btn-success" @onclick="ExportToExcel">
+            <i class="bi bi-file-earmark-excel me-1"></i>Eksport ke Excel
+        </button>
+    }
+</div>
+
+@if (_registrations == null)
+{
+    <p><em>Sedang memuatkan...</em></p>
+}
+else if (!_registrations.Any())
+{
+    <p>Tiada pelajar didaftarkan lagi.</p>
+}
+else
+{
+    @foreach (var yearGroup in _registrations)
+    {
+        <div class="year-group mb-4">
+            <h4 class="text-primary">@yearGroup.Key</h4>
+            @foreach (var classGroup in yearGroup.Value)
+            {
+                <div class="class-group mb-3">
+                    <h5 class="text-secondary">@classGroup.Key</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Persatuan</th>
+                                    <th>Pertandingan</th>
+                                    <th>Tarikh Pendaftaran</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var registration in classGroup.Value.OrderBy(s => s.Student?.Name))
+                                {
+                                    <tr>
+                                        <td>@registration.Student?.Name</td>
+                                        <td>@registration.Association?.Name</td>
+                                        <td>@registration.Competition?.Name</td>
+                                        <td>@registration.RegistrationDate.ToString("yyyy-MM-dd")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+
+@code {
+    private Dictionary<string, Dictionary<string, List<Registration>>>? _registrations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _registrations = await RegistrationService.GetRegistrationsGroupedAsync();
+    }
+
+    private async Task ExportToExcel()
+    {
+        if (_registrations == null) return;
+        
+        var fileBytes = await ExcelExportService.ExportRegistrationsToExcel(_registrations);
+        await JSRuntime.InvokeVoidAsync("downloadFileFromStream", "registrations.xlsx", Convert.ToBase64String(fileBytes));
+    }
+}

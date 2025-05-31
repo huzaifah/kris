@@ -1,0 +1,238 @@
+@page "/register"
+@using Kris.Services
+@using Kris.Models
+@inject RegistrationService RegistrationService
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <h3 class="mb-4">Pendaftaran Pertandingan Sains</h3>
+
+    @if (_currentStep == 1)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Langkah 1: Pilih Tahun Pengajian</h5>
+                <div class="form-group">
+                    <label for="yearOfStudy">Tahun Pengajian:</label>
+                    <select id="yearOfStudy" class="form-select" @bind="_model.YearOfStudyId" @bind:after="YearSelectedAsync">
+                        <option value="0">Pilih Tahun...</option>
+                        @foreach (var year in _years)
+                        {
+                            <option value="@year.Id">@year.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    }
+    else if (_currentStep == 2)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Langkah 2: Pilih Kelas</h5>
+                <div class="form-group">
+                    <label for="class">Kelas:</label>
+                    <select id="class" class="form-select" @bind="_model.ClassId" @bind:after="ClassSelectedAsync">
+                        <option value="0">Pilih Kelas...</option>
+                        @foreach (var cls in _classes)
+                        {
+                            <option value="@cls.Id">@cls.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    }
+    else if (_currentStep == 3)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Langkah 3: Pilih Pelajar dan Persatuan</h5>
+                <div class="form-group mb-3">
+                    <label for="student">Pelajar:</label>
+                    <select id="student" class="form-select" @bind="_model.StudentId">
+                        <option value="0">Pilih Pelajar...</option>
+                        @foreach (var student in _students)
+                        {
+                            <option value="@student.Id">@student.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="association">Persatuan:</label>
+                    <select id="association" class="form-select" @bind="_model.AssociationId">
+                        <option value="0">Pilih Persatuan...</option>
+                        @foreach (var association in _associations)
+                        {
+                            <option value="@association.Id">@association.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    }
+    else if (_currentStep == 4)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Langkah 4: Pilih Pertandingan</h5>
+                <div class="form-group">
+                    <label for="competition">Pertandingan:</label>
+                    <select id="competition" class="form-select" @bind="_model.CompetitionId">
+                        <option value="0">Pilih Pertandingan...</option>
+                        @foreach (var competition in _competitions)
+                        {
+                            <option value="@competition.Id">@competition.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="progress-container mt-5 mb-4">
+        <div class="progress" style="height: 3rem; border-radius: 1rem; background-color: #e9ecef;">
+            <div class="progress-bar position-relative" 
+                 role="progressbar" 
+                 style="width: @(_currentStep * 25)%; transition: width 0.6s ease;"
+                 aria-valuenow="@(_currentStep * 25)" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+                <span class="position-absolute top-50 start-50 translate-middle fw-bold" style="font-size: 1.2rem;">
+                    Langkah @_currentStep daripada 4
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        @if (_currentStep > 1)
+        {
+            <button class="btn btn-secondary" @onclick="PreviousStep">Sebelumnya</button>
+        }
+        else
+        {
+            <div></div>
+        }
+
+        @if (_currentStep < 4)
+        {
+            <button class="btn btn-primary" @onclick="NextStep">Seterusnya</button>
+        }
+        else
+        {
+            <button class="btn btn-success" @onclick="SubmitRegistration">Hantar Pendaftaran</button>
+        }
+    </div>
+
+    @if (_error != null)
+    {
+        <div class="alert alert-danger mt-3">@_error</div>
+    }
+</div>
+
+@code {
+    private RegistrationModel _model = new();
+    private List<YearOfStudy> _years = new();
+    private List<Class> _classes = new();
+    private List<Student> _students = new();
+    private List<Association> _associations = new();
+    private List<Competition> _competitions = new();
+    private int _currentStep = 1;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _years = await RegistrationService.GetYearsAsync();
+    }
+
+    private async Task YearSelectedAsync()
+    {
+        _model.ClassId = 0;
+        _model.StudentId = 0;
+        _model.AssociationId = 0;
+        _classes = await RegistrationService.GetClassesByYearAsync(_model.YearOfStudyId);
+    }
+
+    private async Task ClassSelectedAsync()
+    {
+        _model.StudentId = 0;
+        _model.AssociationId = 0;
+        _students = await RegistrationService.GetStudentsByClassAsync(_model.YearOfStudyId, _model.ClassId);
+        _associations = await RegistrationService.GetAssociationsAsync();
+    }
+
+    private void PreviousStep()
+    {
+        _error = null;
+        _currentStep--;
+    }
+
+    private async Task NextStep()
+    {
+        _error = null;
+
+        if (_currentStep == 1 && _model.YearOfStudyId == 0)
+        {
+            _error = "Sila pilih tahun pengajian";
+            return;
+        }
+
+        if (_currentStep == 2 && _model.ClassId == 0)
+        {
+            _error = "Sila pilih kelas";
+            return;
+        }
+
+        if (_currentStep == 3)
+        {
+            if (_model.StudentId == 0)
+            {
+                _error = "Sila pilih pelajar";
+                return;
+            }
+            if (_model.AssociationId == 0)
+            {
+                _error = "Sila pilih persatuan";
+                return;
+            }
+            _competitions = await RegistrationService.GetCompetitionsAsync();
+        }
+
+        _currentStep++;
+    }
+
+    private async Task SubmitRegistration()
+    {
+        _error = null;
+
+        if (_model.CompetitionId == 0)
+        {
+            _error = "Sila pilih pertandingan";
+            return;
+        }
+
+        try
+        {
+            var registration = await RegistrationService.RegisterAsync(_model);
+            if (registration?.Student?.YearOfStudy?.Name != null && registration?.Student?.Class?.Name != null)
+            {
+                var navigationParameters = new Dictionary<string, object>
+                {
+                    { "yearName", registration.Student.YearOfStudy.Name },
+                    { "className", registration.Student.Class.Name }
+                };
+                NavigationManager.NavigateTo("/registration-success?" + string.Join("&", 
+                    navigationParameters.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value?.ToString() ?? "")}")));
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/registration-success");
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}
