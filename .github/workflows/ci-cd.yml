@@ -1,0 +1,169 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  BUILD_CONFIGURATION: 'Release'
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better analysis
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      run: dotnet restore Kris.sln
+    
+    - name: Build solution
+      run: dotnet build Kris.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+    
+    - name: Run tests with coverage
+      run: |
+        dotnet test src/Tests/Kris.Tests.csproj \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --no-build \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults \
+          --logger trx \
+          --logger "console;verbosity=detailed"
+    
+    - name: Generate coverage report
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.2.0
+      with:
+        reports: 'TestResults/**/coverage.cobertura.xml'
+        targetdir: 'TestResults/CoverageReport'
+        reporttypes: 'Html;Cobertura;JsonSummary'
+        sourcedirs: 'src'
+        historydir: 'TestResults/CoverageHistory'
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: TestResults/
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: TestResults/**/coverage.cobertura.xml
+        fail_ci_if_error: false
+        verbose: true
+    
+    - name: Comment PR with coverage
+      if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        recreate: true
+        path: TestResults/CoverageReport/Summary.txt
+
+  publish:
+    name: Publish Application
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore Kris.sln
+    
+    - name: Publish application
+      run: |
+        dotnet publish src/Apps/Kris.csproj \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --output ./publish \
+          --no-restore \
+          --self-contained false
+    
+    - name: Upload publish artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: published-app
+        path: ./publish/
+        retention-days: 30
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore Kris.sln
+    
+    - name: Run security scan
+      run: |
+        dotnet list package --vulnerable --include-transitive 2>&1 | tee security-scan.txt
+        if grep -q "has the following vulnerable packages" security-scan.txt; then
+          echo "Vulnerable packages found!"
+          exit 1
+        fi
+    
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-scan
+        path: security-scan.txt
+
+  lint:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore Kris.sln
+    
+    - name: Format check
+      run: dotnet format Kris.sln --verify-no-changes --verbosity diagnostic
+    
+    - name: Build for analysis
+      run: dotnet build Kris.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
