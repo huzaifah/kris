@@ -79,8 +79,26 @@ This project includes a comprehensive GitHub Actions pipeline that automatically
 
 ### Code Formatting:
 - **Validation**: CI pipeline checks code formatting but doesn't fail the build
-- **Auto-Fix**: Manual workflow available to automatically fix formatting issues
-- **Standards**: Follows standard .NET code style conventions
+- **Manual Formatting**: Use the "Auto Format Code" workflow to fix formatting issues
+- **Options**: Create PR with changes or commit directly to main branch
+
+#### How to Manually Trigger Auto-Format:
+
+**Using GitHub CLI:**
+```bash
+# Create a PR with formatting changes
+gh workflow run "Auto Format Code" --field create_pr=true
+
+# Apply formatting directly to main branch
+gh workflow run "Auto Format Code" --field create_pr=false
+```
+
+**Using GitHub Web Interface:**
+1. Go to the "Actions" tab in your GitHub repository
+2. Select "Auto Format Code" from the workflow list
+3. Click "Run workflow"
+4. Choose whether to create a PR or commit directly
+5. Click "Run workflow" button
 
 ## 🎯 Testing the CI/CD Pipeline
 
