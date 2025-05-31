@@ -1,0 +1,107 @@
+name: Auto Format Code
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_pr:
+        description: 'Create a PR with formatting changes'
+        required: false
+        default: 'true'
+        type: boolean
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  format-code:
+    name: Format Code
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore Kris.sln
+    
+    - name: Check for formatting issues
+      id: check
+      run: |
+        if dotnet format Kris.sln --verify-no-changes --verbosity minimal; then
+          echo "No formatting issues found"
+          echo "needs_formatting=false" >> $GITHUB_OUTPUT
+        else
+          echo "Formatting issues found"
+          echo "needs_formatting=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Apply formatting
+      if: steps.check.outputs.needs_formatting == 'true'
+      run: |
+        dotnet format Kris.sln --verbosity normal
+        
+        # Check if any files were changed
+        if git diff --quiet; then
+          echo "No files were changed by formatting"
+          echo "changes_made=false" >> $GITHUB_OUTPUT
+        else
+          echo "Files were formatted"
+          echo "changes_made=true" >> $GITHUB_OUTPUT
+        fi
+      id: format
+    
+    - name: Create Pull Request
+      if: steps.format.outputs.changes_made == 'true' && inputs.create_pr == true
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'Apply automatic code formatting'
+        title: 'Auto-format: Apply code formatting fixes'
+        body: |
+          ## Automatic Code Formatting
+          
+          This PR applies automatic code formatting using `dotnet format`.
+          
+          ### Changes Applied:
+          - Fixed code formatting inconsistencies
+          - Applied standard .NET code style rules
+          
+          ### How to Review:
+          1. Check that the formatting changes look correct
+          2. Ensure no logic changes were made
+          3. Merge if formatting looks good
+          
+          *This PR was created automatically by the Auto Format Code workflow.*
+        branch: auto-format-code
+        delete-branch: true
+    
+    - name: Commit directly to main
+      if: steps.format.outputs.changes_made == 'true' && inputs.create_pr == false
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add -A
+        git commit -m "Apply automatic code formatting [skip ci]"
+        git push
+    
+    - name: Summary
+      run: |
+        if [ "${{ steps.check.outputs.needs_formatting }}" == "false" ]; then
+          echo "✅ No formatting issues found"
+        elif [ "${{ steps.format.outputs.changes_made }}" == "true" ]; then
+          if [ "${{ inputs.create_pr }}" == "true" ]; then
+            echo "✅ Formatting applied and PR created"
+          else
+            echo "✅ Formatting applied and committed directly"
+          fi
+        else
+          echo "❌ Formatting issues detected but no changes made"
+        fi
