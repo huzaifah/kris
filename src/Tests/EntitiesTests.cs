@@ -125,11 +125,11 @@ public class EntitiesTests
         // Arrange
         var yearOfStudy = new YearOfStudy { Id = 1, Name = "Form 6" };
         var classEntity = new Class { Id = 1, Name = "6A", YearOfStudyId = 1, YearOfStudy = yearOfStudy };
-        var student = new Student 
-        { 
-            Id = 1, 
-            Name = "John Doe", 
-            YearOfStudyId = 1, 
+        var student = new Student
+        {
+            Id = 1,
+            Name = "John Doe",
+            YearOfStudyId = 1,
             YearOfStudy = yearOfStudy,
             ClassId = 1,
             Class = classEntity

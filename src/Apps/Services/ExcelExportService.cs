@@ -15,7 +15,7 @@ public class ExcelExportService
 
     public async Task<byte[]> ExportRegistrationsToExcel(Dictionary<string, Dictionary<string, List<Registration>>> registrations)
     {
-        
+
         using var package = new ExcelPackage();
         var worksheet = package.Workbook.Worksheets.Add("Registrations");
 

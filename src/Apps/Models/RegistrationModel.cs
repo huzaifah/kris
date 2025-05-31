@@ -7,7 +7,7 @@ public class RegistrationModel
     [Required(ErrorMessage = "Please select a year of study")]
     [Range(1, int.MaxValue, ErrorMessage = "Please select a valid year of study")]
     public int YearOfStudyId { get; set; }
-    
+
     [Required(ErrorMessage = "Please select a class")]
     [Range(1, int.MaxValue, ErrorMessage = "Please select a valid class")]
     public int ClassId { get; set; }

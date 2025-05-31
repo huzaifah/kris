@@ -9,10 +9,10 @@ public class RegistrationService
     private readonly AppDbContext _db;
     public RegistrationService(AppDbContext db) => _db = db;
 
-    public async Task<List<YearOfStudy>> GetYearsAsync() => 
+    public async Task<List<YearOfStudy>> GetYearsAsync() =>
         await _db.YearsOfStudy.ToListAsync();
 
-    public async Task<List<Class>> GetClassesByYearAsync(int yearId) => 
+    public async Task<List<Class>> GetClassesByYearAsync(int yearId) =>
         await _db.Classes.Where(c => c.YearOfStudyId == yearId).ToListAsync();
 
     public async Task<List<Student>> GetStudentsByClassAsync(int yearId, int classId) =>
@@ -24,7 +24,7 @@ public class RegistrationService
     public async Task<List<Association>> GetAssociationsAsync() =>
         await _db.Associations.OrderBy(a => a.Name).ToListAsync();
 
-    public async Task<List<Competition>> GetCompetitionsAsync() => 
+    public async Task<List<Competition>> GetCompetitionsAsync() =>
         await _db.Competitions.ToListAsync();
 
     public async Task<Registration> RegisterAsync(RegistrationModel model)
@@ -54,7 +54,7 @@ public class RegistrationService
 
         _db.Registrations.Add(registration);
         await _db.SaveChangesAsync();
-        
+
         return registration;
     }
 

@@ -14,10 +14,10 @@ public class RegistrationServiceTests
             .Options;
 
         var context = new AppDbContext(options);
-        
+
         // Seed test data
         SeedTestData(context);
-        
+
         return context;
     }
 
@@ -163,7 +163,7 @@ public class RegistrationServiceTests
         Assert.Equal(1, registration.CompetitionId);
         Assert.True(registration.Id > 0);
         Assert.True(registration.RegistrationDate > DateTime.MinValue);
-        
+
         // Verify it was saved to database
         var savedRegistration = await context.Registrations
             .Include(r => r.Student)
@@ -245,7 +245,7 @@ public class RegistrationServiceTests
         // Arrange
         using var context = GetInMemoryDbContext();
         var service = new RegistrationService(context);
-        
+
         // Add registrations
         context.Registrations.AddRange(
             new Registration { StudentId = 1, AssociationId = 1, CompetitionId = 1, RegistrationDate = DateTime.Now },
@@ -261,15 +261,15 @@ public class RegistrationServiceTests
         Assert.NotNull(groupedRegistrations);
         Assert.Single(groupedRegistrations); // Only one year of study
         Assert.True(groupedRegistrations.ContainsKey("Tingkatan 6"));
-        
+
         var yearGroup = groupedRegistrations["Tingkatan 6"];
         Assert.Equal(2, yearGroup.Count); // Two classes
         Assert.True(yearGroup.ContainsKey("6 Bestari"));
         Assert.True(yearGroup.ContainsKey("6 Cemerlang"));
-        
+
         var class1Registrations = yearGroup["6 Bestari"];
         Assert.Equal(2, class1Registrations.Count); // 2 students from class 1
-        
+
         var class2Registrations = yearGroup["6 Cemerlang"];
         Assert.Single(class2Registrations); // 1 student from class 2
     }
@@ -280,7 +280,7 @@ public class RegistrationServiceTests
         // Arrange
         using var context = GetInMemoryDbContext();
         var service = new RegistrationService(context);
-        
+
         // Clear all registrations
         context.Registrations.RemoveRange(context.Registrations);
         await context.SaveChangesAsync();
