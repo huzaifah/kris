@@ -1,0 +1,108 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  BUILD_CONFIGURATION: 'Release'
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore Kris.sln
+    
+    - name: Build solution
+      run: dotnet build Kris.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+    
+    - name: Run tests
+      run: |
+        dotnet test src/Tests/Kris.Tests.csproj \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --no-build \
+          --verbosity normal
+    
+    - name: Publish for Linux
+      run: |
+        dotnet publish src/Apps/Kris.csproj \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --runtime linux-x64 \
+          --self-contained true \
+          --output ./publish/linux-x64 \
+          -p:PublishTrimmed=true \
+          -p:TrimMode=partial
+    
+    - name: Publish for Windows
+      run: |
+        dotnet publish src/Apps/Kris.csproj \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --runtime win-x64 \
+          --self-contained true \
+          --output ./publish/win-x64 \
+          -p:PublishTrimmed=true \
+          -p:TrimMode=partial
+    
+    - name: Publish for macOS
+      run: |
+        dotnet publish src/Apps/Kris.csproj \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --runtime osx-x64 \
+          --self-contained true \
+          --output ./publish/osx-x64 \
+          -p:PublishTrimmed=true \
+          -p:TrimMode=partial
+    
+    - name: Create release archives
+      run: |
+        cd publish
+        tar -czf ../kris-linux-x64.tar.gz linux-x64/
+        zip -r ../kris-win-x64.zip win-x64/
+        tar -czf ../kris-osx-x64.tar.gz osx-x64/
+    
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Get the previous tag
+        PREV_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+        
+        # Generate changelog
+        if [ -n "$PREV_TAG" ]; then
+          echo "## Changes since $PREV_TAG" > CHANGELOG.md
+          git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> CHANGELOG.md
+        else
+          echo "## Initial Release" > CHANGELOG.md
+          echo "First release of Kris - Science Competition Registration System" >> CHANGELOG.md
+        fi
+        
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        cat CHANGELOG.md >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        body: ${{ steps.changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
+        files: |
+          kris-linux-x64.tar.gz
+          kris-win-x64.zip
+          kris-osx-x64.tar.gz

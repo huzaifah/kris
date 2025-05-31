@@ -1,0 +1,44 @@
+name: Dependency Update Check
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  check-dependencies:
+    name: Check for Dependency Updates
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Install dotnet outdated tool
+      run: dotnet tool install --global dotnet-outdated-tool
+    
+    - name: Check for outdated packages
+      run: |
+        echo "Checking for outdated packages..."
+        dotnet outdated Kris.sln --output json > outdated-packages.json || true
+        
+        if [ -s outdated-packages.json ] && [ "$(cat outdated-packages.json)" != "[]" ]; then
+          echo "Outdated packages found:"
+          cat outdated-packages.json
+          echo "Consider updating these packages in your next maintenance cycle."
+        else
+          echo "All packages are up to date!"
+        fi
+    
+    - name: Upload dependency report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: dependency-report
+        path: outdated-packages.json
