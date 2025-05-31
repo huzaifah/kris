@@ -1,0 +1,50 @@
+{
+  "summary": {
+    "generatedon": "2025-05-31T19:15:28Z",
+    "parser": "MultiReport (2x Cobertura)",
+    "assemblies": 1,
+    "classes": 24,
+    "files": 26,
+    "coveredlines": 209,
+    "uncoveredlines": 4069,
+    "coverablelines": 4278,
+    "totallines": 5282,
+    "linecoverage": 4.8,
+    "coveredbranches": 9,
+    "totalbranches": 128,
+    "branchcoverage": 7,
+    "coveredmethods": 51,
+    "fullcoveredmethods": 51,
+    "totalmethods": 94,
+    "methodcoverage": 54.2,
+    "fullmethodcoverage": 54.2
+ },
+  "coverage": {
+    "assemblies": [
+      { "name": "Kris", "classes": 24, "coverage": 4.8, "coveredlines": 209, "coverablelines": 4278, "totallines": 5557, "branchcoverage": 7, "coveredbranches": 9, "totalbranches": 128, "methodcoverage": 54.2, "fullmethodcoverage": 54.2, "coveredmethods": 51, "fullcoveredmethods": 51, "totalmethods": 94, "classesinassembly": [
+        { "name": "Kris.Data.AppDbContext", "coverage": 100, "coveredlines": 118, "coverablelines": 118, "totallines": 168, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 8, "fullcoveredmethods": 8, "totalmethods": 8 },
+        { "name": "Kris.Migrations.AddAssociations", "coverage": 0, "coveredlines": 0, "coverablelines": 727, "totallines": 787, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 3 },
+        { "name": "Kris.Migrations.AddStudentsAndUpdateRegistration", "coverage": 0, "coveredlines": 0, "coverablelines": 490, "totallines": 559, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 3 },
+        { "name": "Kris.Migrations.AppDbContextModelSnapshot", "coverage": 0, "coveredlines": 0, "coverablelines": 663, "totallines": 693, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 1 },
+        { "name": "Kris.Migrations.InitialCreate", "coverage": 0, "coveredlines": 0, "coverablelines": 165, "totallines": 217, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 3 },
+        { "name": "Kris.Migrations.SeedYearClass", "coverage": 0, "coveredlines": 0, "coverablelines": 94, "totallines": 140, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 3 },
+        { "name": "Kris.Migrations.UpdateRegistrationAndAddCompetitions", "coverage": 0, "coveredlines": 0, "coverablelines": 426, "totallines": 512, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 3 },
+        { "name": "Kris.Migrations.UpdateRegistrationEntityRelationships", "coverage": 0, "coveredlines": 0, "coverablelines": 326, "totallines": 387, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 3 },
+        { "name": "Kris.Migrations.UpdateStudentSeedData", "coverage": 0, "coveredlines": 0, "coverablelines": 911, "totallines": 1014, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 3 },
+        { "name": "Kris.Models.Association", "coverage": 100, "coveredlines": 3, "coverablelines": 3, "totallines": 55, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 3, "fullcoveredmethods": 3, "totalmethods": 3 },
+        { "name": "Kris.Models.Class", "coverage": 100, "coveredlines": 5, "coverablelines": 5, "totallines": 55, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 5, "fullcoveredmethods": 5, "totalmethods": 5 },
+        { "name": "Kris.Models.Competition", "coverage": 100, "coveredlines": 3, "coverablelines": 3, "totallines": 55, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 3, "fullcoveredmethods": 3, "totalmethods": 3 },
+        { "name": "Kris.Models.Registration", "coverage": 100, "coveredlines": 8, "coverablelines": 8, "totallines": 55, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 8, "fullcoveredmethods": 8, "totalmethods": 8 },
+        { "name": "Kris.Models.RegistrationModel", "coverage": 100, "coveredlines": 5, "coverablelines": 5, "totallines": 26, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 5, "fullcoveredmethods": 5, "totalmethods": 5 },
+        { "name": "Kris.Models.Student", "coverage": 100, "coveredlines": 7, "coverablelines": 7, "totallines": 55, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 7, "fullcoveredmethods": 7, "totalmethods": 7 },
+        { "name": "Kris.Models.YearOfStudy", "coverage": 100, "coveredlines": 4, "coverablelines": 4, "totallines": 55, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 4, "fullcoveredmethods": 4, "totalmethods": 4 },
+        { "name": "Kris.Pages.MainLayout", "coverage": 0, "coveredlines": 0, "coverablelines": 1, "totallines": 52, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 1 },
+        { "name": "Kris.Pages.Register", "coverage": 0, "coveredlines": 0, "coverablelines": 124, "totallines": 238, "branchcoverage": 0, "coveredbranches": 0, "totalbranches": 60, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 8 },
+        { "name": "Kris.Pages.RegistrationSuccess", "coverage": 0, "coveredlines": 0, "coverablelines": 40, "totallines": 103, "branchcoverage": 0, "coveredbranches": 0, "totalbranches": 16, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 5 },
+        { "name": "Kris.Pages.Students", "coverage": 0, "coveredlines": 0, "coverablelines": 34, "totallines": 81, "branchcoverage": 0, "coveredbranches": 0, "totalbranches": 24, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 3 },
+        { "name": "Kris.Services.ExcelExportService", "coverage": 0, "coveredlines": 0, "coverablelines": 48, "totallines": 76, "branchcoverage": 0, "coveredbranches": 0, "totalbranches": 14, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 2 },
+        { "name": "Kris.Services.RegistrationService", "coverage": 100, "coveredlines": 56, "coverablelines": 56, "totallines": 86, "branchcoverage": 75, "coveredbranches": 9, "totalbranches": 12, "methodcoverage": 100, "fullmethodcoverage": 100, "coveredmethods": 8, "fullcoveredmethods": 8, "totalmethods": 8 },
+        { "name": "Kris.Shared.MainLayout", "coverage": 0, "coveredlines": 0, "coverablelines": 1, "totallines": 57, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 1 },
+        { "name": "Program", "coverage": 0, "coveredlines": 0, "coverablelines": 19, "totallines": 31, "branchcoverage": 0, "coveredbranches": 0, "totalbranches": 2, "methodcoverage": 0, "fullmethodcoverage": 0, "coveredmethods": 0, "fullcoveredmethods": 0, "totalmethods": 1 } ] } ]
+  }
+}

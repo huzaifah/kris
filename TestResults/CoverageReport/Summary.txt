@@ -1,0 +1,46 @@
+Summary
+  Generated on: 6/1/2025 - 3:15:28 AM
+  Coverage date: 6/1/2025 - 2:41:01 AM - 6/1/2025 - 3:15:03 AM
+  Parser: MultiReport (2x Cobertura)
+  Assemblies: 1
+  Classes: 24
+  Files: 26
+  Line coverage: 4.8%
+  Covered lines: 209
+  Uncovered lines: 4069
+  Coverable lines: 4278
+  Total lines: 5282
+  Branch coverage: 7% (9 of 128)
+  Covered branches: 9
+  Total branches: 128
+  Method coverage: 54.2% (51 of 94)
+  Full method coverage: 54.2% (51 of 94)
+  Covered methods: 51
+  Fully covered methods: 51
+  Total methods: 94
+
+Kris                                                       4.8%
+  Kris.Data.AppDbContext                                   100%
+  Kris.Migrations.AddAssociations                            0%
+  Kris.Migrations.AddStudentsAndUpdateRegistration           0%
+  Kris.Migrations.AppDbContextModelSnapshot                  0%
+  Kris.Migrations.InitialCreate                              0%
+  Kris.Migrations.SeedYearClass                              0%
+  Kris.Migrations.UpdateRegistrationAndAddCompetitions       0%
+  Kris.Migrations.UpdateRegistrationEntityRelationships      0%
+  Kris.Migrations.UpdateStudentSeedData                      0%
+  Kris.Models.Association                                  100%
+  Kris.Models.Class                                        100%
+  Kris.Models.Competition                                  100%
+  Kris.Models.Registration                                 100%
+  Kris.Models.RegistrationModel                            100%
+  Kris.Models.Student                                      100%
+  Kris.Models.YearOfStudy                                  100%
+  Kris.Pages.MainLayout                                      0%
+  Kris.Pages.Register                                        0%
+  Kris.Pages.RegistrationSuccess                             0%
+  Kris.Pages.Students                                        0%
+  Kris.Services.ExcelExportService                           0%
+  Kris.Services.RegistrationService                        100%
+  Kris.Shared.MainLayout                                     0%
+  Program                                                    0%
