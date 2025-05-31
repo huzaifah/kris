@@ -74,6 +74,21 @@ This project includes a comprehensive GitHub Actions pipeline that automatically
 - ✅ Artifact uploads for deployment
 - ✅ PR comments with coverage summaries
 
+## 🎯 Testing the CI/CD Pipeline
+
+This project now includes a comprehensive CI/CD pipeline! The pipeline will automatically:
+
+1. **Build and test** your code on every pull request
+2. **Generate coverage reports** and comment on your PRs
+3. **Scan for security vulnerabilities** in dependencies
+4. **Check code formatting** and quality
+5. **Create releases** when you push version tags
+
+### How to Test:
+- Create a pull request to see the full pipeline in action
+- Push a tag like `v1.0.0` to trigger a release build
+- The pipeline supports .NET 8 and runs on Ubuntu runners
+
 ## 🏃‍♂️ Getting Started
 
 ### Prerequisites
