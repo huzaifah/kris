@@ -1,5 +1,9 @@
 # Kris - Science Competition Registration System
 
+[![CI/CD Pipeline](https://github.com/huzaifah/kris/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/huzaifah/kris/actions/workflows/ci-cd.yml)
+[![Dependency Check](https://github.com/huzaifah/kris/actions/workflows/dependency-check.yml/badge.svg)](https://github.com/huzaifah/kris/actions/workflows/dependency-check.yml)
+[![Release](https://github.com/huzaifah/kris/actions/workflows/release.yml/badge.svg)](https://github.com/huzaifah/kris/actions/workflows/release.yml)
+
 A comprehensive multi-step science competition registration application built with .NET 8 and Blazor Server. This system enables students to register for various science competitions through an intuitive web interface with robust data management and export capabilities.
 
 ## 🚀 Features
@@ -36,6 +40,39 @@ src/
     ├── EntitiesTests.cs
     └── RegistrationModelTests.cs
 ```
+
+## 🚀 CI/CD Pipeline
+
+This project includes a comprehensive GitHub Actions pipeline that automatically:
+
+### On Pull Requests:
+- **Build & Test**: Compiles the application and runs all unit tests
+- **Code Coverage**: Generates coverage reports and comments on PRs
+- **Security Scan**: Checks for vulnerable dependencies
+- **Code Quality**: Validates code formatting and runs static analysis
+
+### On Main Branch Push:
+- **Build & Test**: Full build and test suite
+- **Publish**: Creates deployment-ready artifacts
+- **Coverage Reports**: Updates coverage badges and reports
+
+### Scheduled Jobs:
+- **Dependency Check**: Weekly scan for outdated packages (Mondays 9 AM UTC)
+
+### Release Automation:
+- **Tagged Releases**: Automatic releases when version tags (v*.*.*) are pushed
+- **Multi-Platform Builds**: Creates binaries for Linux, Windows, and macOS
+- **Release Notes**: Auto-generated changelog from commit history
+- **Release Assets**: Downloadable packages for each platform
+
+### Workflow Features:
+- ✅ .NET 8 build and test automation
+- ✅ Code coverage with ReportGenerator
+- ✅ Codecov integration for coverage tracking
+- ✅ Security vulnerability scanning
+- ✅ Automated dependency updates checking
+- ✅ Artifact uploads for deployment
+- ✅ PR comments with coverage summaries
 
 ## 🏃‍♂️ Getting Started
 
