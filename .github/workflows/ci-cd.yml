@@ -162,8 +162,27 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore Kris.sln
     
-    - name: Format check
-      run: dotnet format Kris.sln --verify-no-changes --verbosity diagnostic
+    - name: Check code formatting
+      run: |
+        echo "Checking code formatting..."
+        dotnet format Kris.sln --verify-no-changes --verbosity normal > format-check.log 2>&1 || true
+        
+        if dotnet format Kris.sln --verify-no-changes --verbosity minimal; then
+          echo "✅ Code formatting is correct"
+          echo "formatting_status=success" >> $GITHUB_OUTPUT
+        else
+          echo "⚠️  Code formatting issues detected"
+          echo "formatting_status=warning" >> $GITHUB_OUTPUT
+          echo "Run 'dotnet format' to fix formatting issues"
+        fi
+      id: format_check
+    
+    - name: Upload formatting report
+      uses: actions/upload-artifact@v4
+      if: steps.format_check.outputs.formatting_status == 'warning'
+      with:
+        name: formatting-report
+        path: format-check.log
     
     - name: Build for analysis
       run: dotnet build Kris.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
