@@ -413,6 +413,17 @@ data/*.csv
 data.numbers
 data.xlsx
 
+# Protect all data files in data folder except specific scripts and documentation
+data/*
+!data/*.sql
+!data/*.sh
+!data/README.md
+
+# Re-exclude sensitive SQL files containing personal data
+data/02_insert_classes.sql
+data/03_insert_associations.sql
+data/04_insert_students.sql
+
 # Database backups with potentially sensitive data
 *_backup_*.db
 kris_backup_*.db

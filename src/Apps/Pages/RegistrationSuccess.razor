@@ -23,6 +23,36 @@
                     <span class="text-muted">Tahun: @YearName | Kelas: @ClassName</span>
                 }
             </p>
+            
+            @if (!string.IsNullOrEmpty(StudentName) || !string.IsNullOrEmpty(AssociationName) || !string.IsNullOrEmpty(CompetitionName))
+            {
+                <div class="registration-details mb-4">
+                    <h5 class="text-primary mb-3">Butiran Pendaftaran</h5>
+                    <div class="row">
+                        @if (!string.IsNullOrEmpty(StudentName))
+                        {
+                            <div class="col-md-4 mb-2">
+                                <strong>Nama:</strong><br/>
+                                <span class="text-muted">@StudentName</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(AssociationName))
+                        {
+                            <div class="col-md-4 mb-2">
+                                <strong>Persatuan/Kelab:</strong><br/>
+                                <span class="text-muted">@AssociationName</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(CompetitionName))
+                        {
+                            <div class="col-md-4 mb-2">
+                                <strong>Pertandingan:</strong><br/>
+                                <span class="text-muted">@CompetitionName</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
             <div class="mt-4 d-flex justify-content-center gap-2">
                 <button class="btn btn-primary" @onclick="@(() => NavigationManager.NavigateTo("/register"))">
                     <i class="bi bi-plus-circle me-1"></i>Pendaftaran Baru
@@ -60,6 +90,9 @@
 @code {
     private string? YearName { get; set; }
     private string? ClassName { get; set; }
+    private string? StudentName { get; set; }
+    private string? AssociationName { get; set; }
+    private string? CompetitionName { get; set; }
 
     protected override void OnInitialized()
     {
@@ -73,6 +106,18 @@
         if (queryParameters.TryGetValue("className", out var className))
         {
             ClassName = className.ToString();
+        }
+        if (queryParameters.TryGetValue("studentName", out var studentName))
+        {
+            StudentName = studentName.ToString();
+        }
+        if (queryParameters.TryGetValue("associationName", out var associationName))
+        {
+            AssociationName = associationName.ToString();
+        }
+        if (queryParameters.TryGetValue("competitionName", out var competitionName))
+        {
+            CompetitionName = competitionName.ToString();
         }
     }
 

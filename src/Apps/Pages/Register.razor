@@ -220,7 +220,10 @@
                 var navigationParameters = new Dictionary<string, object>
                 {
                     { "yearName", registration.Student.YearOfStudy.Name },
-                    { "className", registration.Student.Class.Name }
+                    { "className", registration.Student.Class.Name },
+                    { "studentName", registration.Student.Name },
+                    { "associationName", registration.Association?.Name ?? "" },
+                    { "competitionName", registration.Competition?.Name ?? "" }
                 };
                 NavigationManager.NavigateTo("/registration-success?" + string.Join("&", 
                     navigationParameters.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value?.ToString() ?? "")}")));
