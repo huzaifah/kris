@@ -47,11 +47,11 @@
     {
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Langkah 3: Pilih Pelajar dan Persatuan</h5>
+                <h5 class="card-title">Langkah 3: Pilih Nama dan Persatuan/Kelab</h5>
                 <div class="form-group mb-3">
-                    <label for="student">Pelajar:</label>
+                    <label for="student">Nama:</label>
                     <select id="student" class="form-select" @bind="_model.StudentId">
-                        <option value="0">Pilih Pelajar...</option>
+                        <option value="0">Pilih Nama...</option>
                         @foreach (var student in _students)
                         {
                             <option value="@student.Id">@student.Name</option>
@@ -59,9 +59,9 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="association">Persatuan:</label>
+                    <label for="association">Persatuan/Kelab:</label>
                     <select id="association" class="form-select" @bind="_model.AssociationId">
-                        <option value="0">Pilih Persatuan...</option>
+                        <option value="0">Pilih Persatuan/Kelab...</option>
                         @foreach (var association in _associations)
                         {
                             <option value="@association.Id">@association.Name</option>
@@ -188,12 +188,12 @@
         {
             if (_model.StudentId == 0)
             {
-                _error = "Sila pilih pelajar";
+                _error = "Sila pilih nama";
                 return;
             }
             if (_model.AssociationId == 0)
             {
-                _error = "Sila pilih persatuan";
+                _error = "Sila pilih persatuan/kelab";
                 return;
             }
             _competitions = await RegistrationService.GetCompetitionsAsync();
