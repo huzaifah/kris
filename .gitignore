@@ -404,3 +404,20 @@ coverage*/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Sensitive data files
+*.numbers
+*.xlsx
+*.csv
+data/*.csv
+data.numbers
+data.xlsx
+
+# Database backups with potentially sensitive data
+*_backup_*.db
+kris_backup_*.db
+
+# Any files containing student or personal data
+*student*data*
+*personal*data*
+*sensitive*
