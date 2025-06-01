@@ -40,7 +40,7 @@ public class RegistrationServiceTests
 
         // Add test competitions
         context.Competitions.AddRange(
-            new Competition { Id = 1, Name = "Pertandingan Sains Kebangsaan" },
+            new Competition { Id = 1, Name = "Karnival Rekacipta dan Inovasi SMAPK 2025" },
             new Competition { Id = 2, Name = "Pertandingan Matematik Kebangsaan" }
         );
 
@@ -134,7 +134,7 @@ public class RegistrationServiceTests
         // Assert
         Assert.NotNull(competitions);
         Assert.Equal(2, competitions.Count);
-        Assert.Contains(competitions, c => c.Name == "Pertandingan Sains Kebangsaan");
+        Assert.Contains(competitions, c => c.Name == "Karnival Rekacipta dan Inovasi SMAPK 2025");
         Assert.Contains(competitions, c => c.Name == "Pertandingan Matematik Kebangsaan");
     }
 

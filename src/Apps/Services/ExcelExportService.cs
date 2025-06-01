@@ -24,7 +24,7 @@ public class ExcelExportService
         worksheet.Cells[1, 2].Value = "Kelas";
         worksheet.Cells[1, 3].Value = "Nama Pelajar";
         worksheet.Cells[1, 4].Value = "Persatuan";
-        worksheet.Cells[1, 5].Value = "Pertandingan";
+        worksheet.Cells[1, 5].Value = "Karnival";
         worksheet.Cells[1, 6].Value = "Tarikh Pendaftaran";
 
         // Style headers
