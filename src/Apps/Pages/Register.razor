@@ -11,11 +11,11 @@
     {
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Langkah 1: Pilih Tahun Pengajian</h5>
+                <h5 class="card-title">Langkah 1: Pilih Tingkatan</h5>
                 <div class="form-group">
-                    <label for="yearOfStudy">Tahun Pengajian:</label>
+                    <label for="yearOfStudy">Tingkatan:</label>
                     <select id="yearOfStudy" class="form-select" @bind="_model.YearOfStudyId" @bind:after="YearSelectedAsync">
-                        <option value="0">Pilih Tahun...</option>
+                        <option value="0">Pilih Tingkatan...</option>
                         @foreach (var year in _years)
                         {
                             <option value="@year.Id">@year.Name</option>
@@ -174,7 +174,7 @@
 
         if (_currentStep == 1 && _model.YearOfStudyId == 0)
         {
-            _error = "Sila pilih tahun pengajian";
+            _error = "Sila pilih tingkatan";
             return;
         }
 

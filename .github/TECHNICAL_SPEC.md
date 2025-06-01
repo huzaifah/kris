@@ -32,7 +32,7 @@ This application is a comprehensive science competition registration system with
 ## 5. Implemented Features
 
 ### 5.1 Multi-Step Registration Process
-- **Step 1**: Select Year of Study (Tahun Pengajian) - Form 1 to Form 4
+- **Step 1**: Select Year of Study (Tingkatan) - Form 1 to Form 4
 - **Step 2**: Select Class (Kelas) - filtered by selected year (Red/Blue/Yellow)
 - **Step 3**: Select Student (Pelajar) and Association (Persatuan) - dropdowns populated from database
 - **Step 4**: Select Competition (Pertandingan) - choose between available competitions
