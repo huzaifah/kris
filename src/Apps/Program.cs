@@ -18,10 +18,15 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    // Don't use HSTS in production on Azure App Service
+    // app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Don't redirect to HTTPS on Azure App Service - HTTPS termination is handled by the load balancer
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles();
 app.UseRouting();
 
