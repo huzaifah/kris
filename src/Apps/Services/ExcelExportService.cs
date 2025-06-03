@@ -22,9 +22,9 @@ public class ExcelExportService
         // Add headers
         worksheet.Cells[1, 1].Value = "Tahun";
         worksheet.Cells[1, 2].Value = "Kelas";
-        worksheet.Cells[1, 3].Value = "Nama Pelajar";
-        worksheet.Cells[1, 4].Value = "Persatuan";
-        worksheet.Cells[1, 5].Value = "Karnival";
+        worksheet.Cells[1, 3].Value = "Nama Murid";
+        worksheet.Cells[1, 4].Value = "Persatuan/Kelab";
+        worksheet.Cells[1, 5].Value = "Pertandingan";
         worksheet.Cells[1, 6].Value = "Tarikh Pendaftaran";
 
         // Style headers

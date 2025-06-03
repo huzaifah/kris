@@ -233,6 +233,10 @@
                 NavigationManager.NavigateTo("/registration-success");
             }
         }
+        catch (InvalidOperationException ex) when (ex.Message == "Student already registered")
+        {
+            NavigationManager.NavigateTo("/duplicate-registration");
+        }
         catch (Exception ex)
         {
             _error = ex.Message;

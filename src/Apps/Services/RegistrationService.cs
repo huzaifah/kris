@@ -29,6 +29,15 @@ public class RegistrationService
 
     public async Task<Registration> RegisterAsync(RegistrationModel model)
     {
+        // Check if student already has a registration
+        var existingRegistration = await _db.Registrations
+            .FirstOrDefaultAsync(r => r.StudentId == model.StudentId);
+        
+        if (existingRegistration != null)
+        {
+            throw new InvalidOperationException("Student already registered");
+        }
+
         var student = await _db.Students
             .Include(s => s.YearOfStudy)
             .Include(s => s.Class)

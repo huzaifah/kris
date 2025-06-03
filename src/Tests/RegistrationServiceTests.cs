@@ -292,4 +292,65 @@ public class RegistrationServiceTests
         Assert.NotNull(groupedRegistrations);
         Assert.Empty(groupedRegistrations);
     }
+
+    [Fact]
+    public async Task RegisterAsync_DuplicateRegistration_ThrowsException()
+    {
+        // Arrange
+        using var context = GetInMemoryDbContext();
+        var service = new RegistrationService(context);
+        var model = new RegistrationModel
+        {
+            YearOfStudyId = 1,
+            ClassId = 1,
+            StudentId = 1,
+            AssociationId = 1,
+            CompetitionId = 1
+        };
+
+        // First registration should succeed
+        await service.RegisterAsync(model);
+
+        // Act & Assert - Second registration should fail
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.RegisterAsync(model));
+        Assert.Equal("Student already registered", exception.Message);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_DifferentStudents_ShouldSucceed()
+    {
+        // Arrange
+        using var context = GetInMemoryDbContext();
+        var service = new RegistrationService(context);
+        
+        var model1 = new RegistrationModel
+        {
+            YearOfStudyId = 1,
+            ClassId = 1,
+            StudentId = 1,
+            AssociationId = 1,
+            CompetitionId = 1
+        };
+
+        var model2 = new RegistrationModel
+        {
+            YearOfStudyId = 1,
+            ClassId = 1,
+            StudentId = 2, // Different student
+            AssociationId = 1,
+            CompetitionId = 1
+        };
+
+        // Act
+        var registration1 = await service.RegisterAsync(model1);
+        var registration2 = await service.RegisterAsync(model2);
+
+        // Assert
+        Assert.NotNull(registration1);
+        Assert.NotNull(registration2);
+        Assert.NotEqual(registration1.StudentId, registration2.StudentId);
+        Assert.Equal(1, registration1.StudentId);
+        Assert.Equal(2, registration2.StudentId);
+    }
 }

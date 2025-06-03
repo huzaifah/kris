@@ -18,6 +18,11 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configure unique constraint for Registration - one registration per student
+        modelBuilder.Entity<Registration>()
+            .HasIndex(r => r.StudentId)
+            .IsUnique();
+
         // Seed Years of Study
         modelBuilder.Entity<YearOfStudy>().HasData(
             new YearOfStudy { Id = 1, Name = "Form 1" },
