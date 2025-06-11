@@ -5,23 +5,23 @@ namespace Kris.Models;
 public class EditRegistrationModel
 {
     public int RegistrationId { get; set; }
-    
+
     [Required(ErrorMessage = "Sila pilih pertandingan")]
     [Range(1, int.MaxValue, ErrorMessage = "Sila pilih pertandingan yang sah")]
     public int CompetitionId { get; set; }
-    
+
     public int OriginalCompetitionId { get; set; }
-    
+
     // Read-only display properties
     public string StudentName { get; set; } = string.Empty;
     public string ClassName { get; set; } = string.Empty;
     public string YearName { get; set; } = string.Empty;
     public string AssociationName { get; set; } = string.Empty;
     public string CurrentCompetitionName { get; set; } = string.Empty;
-    
+
     // Change tracking
     public bool HasChanges => CompetitionId != OriginalCompetitionId;
-    
+
     // Helper method to create from Registration entity
     public static EditRegistrationModel FromRegistration(Registration registration)
     {

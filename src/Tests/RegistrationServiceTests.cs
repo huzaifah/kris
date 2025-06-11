@@ -323,7 +323,7 @@ public class RegistrationServiceTests
         // Arrange
         using var context = GetInMemoryDbContext();
         var service = new RegistrationService(context);
-        
+
         var model1 = new RegistrationModel
         {
             YearOfStudyId = 1,

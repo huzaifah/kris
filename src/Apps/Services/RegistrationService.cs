@@ -32,7 +32,7 @@ public class RegistrationService
         // Check if student already has a registration
         var existingRegistration = await _db.Registrations
             .FirstOrDefaultAsync(r => r.StudentId == model.StudentId);
-        
+
         if (existingRegistration != null)
         {
             throw new InvalidOperationException("Student already registered");
