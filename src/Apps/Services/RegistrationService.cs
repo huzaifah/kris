@@ -92,4 +92,128 @@ public class RegistrationService
                     )
             );
     }
+
+    // New methods for Edit Registration functionality
+    public async Task<List<Registration>> GetAllRegistrationsAsync()
+    {
+        return await _db.Registrations
+            .Include(r => r.Student)
+            .ThenInclude(s => s!.YearOfStudy)
+            .Include(r => r.Student)
+            .ThenInclude(s => s!.Class)
+            .Include(r => r.Association)
+            .Include(r => r.Competition)
+            .OrderBy(r => r.Student!.YearOfStudy!.Name)
+            .ThenBy(r => r.Student!.Class!.Name)
+            .ThenBy(r => r.Student!.Name)
+            .ToListAsync();
+    }
+
+    public async Task<List<Registration>> GetRegistrationsByFiltersAsync(int? yearOfStudyId, int? classId, string? studentName)
+    {
+        var query = _db.Registrations
+            .Include(r => r.Student)
+            .ThenInclude(s => s!.YearOfStudy)
+            .Include(r => r.Student)
+            .ThenInclude(s => s!.Class)
+            .Include(r => r.Association)
+            .Include(r => r.Competition)
+            .AsQueryable();
+
+        if (yearOfStudyId.HasValue && yearOfStudyId.Value > 0)
+        {
+            query = query.Where(r => r.Student!.YearOfStudyId == yearOfStudyId.Value);
+        }
+
+        if (classId.HasValue && classId.Value > 0)
+        {
+            query = query.Where(r => r.Student!.ClassId == classId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(studentName))
+        {
+            var searchTerm = studentName.Trim().ToLower();
+            query = query.Where(r => r.Student!.Name.ToLower().Contains(searchTerm));
+        }
+
+        return await query
+            .OrderBy(r => r.Student!.YearOfStudy!.Name)
+            .ThenBy(r => r.Student!.Class!.Name)
+            .ThenBy(r => r.Student!.Name)
+            .ToListAsync();
+    }
+
+    public async Task<Registration?> GetRegistrationByIdAsync(int id)
+    {
+        return await _db.Registrations
+            .Include(r => r.Student)
+            .ThenInclude(s => s!.YearOfStudy)
+            .Include(r => r.Student)
+            .ThenInclude(s => s!.Class)
+            .Include(r => r.Association)
+            .Include(r => r.Competition)
+            .FirstOrDefaultAsync(r => r.Id == id);
+    }
+
+    public async Task<bool> ValidateCompetitionChangeAsync(int registrationId, int newCompetitionId)
+    {
+        // Check if registration exists
+        var registration = await _db.Registrations.FindAsync(registrationId);
+        if (registration == null) return false;
+
+        // Check if competition exists
+        var competition = await _db.Competitions.FindAsync(newCompetitionId);
+        if (competition == null) return false;
+
+        return true;
+    }
+
+    public async Task<Registration> UpdateRegistrationCompetitionAsync(int registrationId, int newCompetitionId)
+    {
+        var registration = await _db.Registrations
+            .Include(r => r.Student)
+            .ThenInclude(s => s!.YearOfStudy)
+            .Include(r => r.Student)
+            .ThenInclude(s => s!.Class)
+            .Include(r => r.Association)
+            .Include(r => r.Competition)
+            .FirstOrDefaultAsync(r => r.Id == registrationId)
+            ?? throw new InvalidOperationException("Registration not found");
+
+        var competition = await _db.Competitions.FindAsync(newCompetitionId)
+            ?? throw new InvalidOperationException("Competition not found");
+
+        registration.CompetitionId = newCompetitionId;
+        registration.Competition = competition;
+
+        await _db.SaveChangesAsync();
+        return registration;
+    }
+
+    public async Task<List<Registration>> BatchUpdateRegistrationCompetitionsAsync(
+        Dictionary<int, int> registrationCompetitionUpdates)
+    {
+        var updatedRegistrations = new List<Registration>();
+
+        using var transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            foreach (var update in registrationCompetitionUpdates)
+            {
+                var registrationId = update.Key;
+                var newCompetitionId = update.Value;
+
+                var registration = await UpdateRegistrationCompetitionAsync(registrationId, newCompetitionId);
+                updatedRegistrations.Add(registration);
+            }
+
+            await transaction.CommitAsync();
+            return updatedRegistrations;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
 }

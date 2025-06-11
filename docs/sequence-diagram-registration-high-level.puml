@@ -1,0 +1,63 @@
+@startuml Complete Student Registration Flow - High Level
+!theme plain
+title Kris Science Competition Registration System - High Level Registration Flow
+
+actor "Student/User" as User
+participant "Registration UI" as UI
+participant "Registration Service" as Service
+database "Database" as DB
+
+== Multi-Step Registration Process ==
+
+User -> UI: Access Registration Form
+
+loop For Each Step (1-4)
+    UI -> Service: Load Options for Current Step
+    Service -> DB: Query Required Data
+    DB --> Service: Return Data
+    Service --> UI: Return Options
+    UI --> User: Display Step Form
+    
+    User -> UI: Make Selection
+    UI -> UI: Validate Selection
+    
+    alt Valid Selection
+        UI -> UI: Proceed to Next Step
+    else Invalid Selection
+        UI --> User: Display Validation Error
+    end
+end
+
+== Final Registration Submission ==
+
+User -> UI: Submit Complete Registration
+UI -> Service: RegisterAsync(registrationData)
+
+Service -> DB: Check for Duplicate Registration
+alt Student Not Already Registered
+    Service -> DB: Fetch Related Entities
+    Service -> DB: Create Registration Record
+    DB --> Service: Registration Created Successfully
+    Service --> UI: Registration Success
+    UI --> User: Navigate to Success Page
+else Student Already Registered
+    Service --> UI: Throw Duplicate Registration Error
+    UI --> User: Display Duplicate Error Message
+end
+
+note over User, DB
+**4-Step Process:**
+1. Select Year of Study (Tingkatan)
+2. Select Class (Kelas) 
+3. Select Student (Pelajar) & Association (Persatuan)
+4. Select Competition (Pertandingan) & Submit
+
+**Key Features:**
+- Server-side validation at each step
+- Duplicate registration prevention
+- Progress tracking with visual indicator
+- Backward navigation support
+- Malay language error messages
+end note
+
+@enduml

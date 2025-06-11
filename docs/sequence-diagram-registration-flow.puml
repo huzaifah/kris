@@ -1,0 +1,114 @@
+@startuml Complete Student Registration Flow
+!theme plain
+title Kris Science Competition Registration System - Complete Student Registration Flow
+
+actor "Student/User" as User
+participant "Register.razor" as UI
+participant "RegistrationService" as Service
+database "AppDbContext" as DB
+participant "RegistrationModel" as Model
+participant "NavigationManager" as Nav
+
+== Step 1: Load Registration Page ==
+User -> UI: Navigate to /register
+UI -> Service: GetYearsAsync()
+Service -> DB: SELECT * FROM YearsOfStudy
+DB --> Service: List<YearOfStudy>
+Service --> UI: yearOptions
+UI --> User: Display Year of Study dropdown
+
+== Step 2: Select Year of Study ==
+User -> UI: Select Year (Tingkatan)
+UI -> Model: Set YearOfStudyId
+UI -> UI: Validate selection
+alt Valid Year Selected
+    UI -> UI: NextStep()
+    UI -> Service: GetClassesByYearAsync(yearId)
+    Service -> DB: SELECT * FROM Classes WHERE YearOfStudyId = yearId
+    DB --> Service: List<Class>
+    Service --> UI: classOptions
+    UI --> User: Display Class dropdown (Step 2)
+else Invalid Selection
+    UI --> User: Display error: "Sila pilih tingkatan"
+end
+
+== Step 3: Select Class ==
+User -> UI: Select Class (Kelas)
+UI -> Model: Set ClassId
+UI -> UI: Validate selection
+alt Valid Class Selected
+    UI -> UI: NextStep()
+    UI -> Service: GetStudentsByClassAsync(yearId, classId)
+    Service -> DB: SELECT * FROM Students WHERE YearOfStudyId = yearId AND ClassId = classId ORDER BY Name
+    DB --> Service: List<Student>
+    Service --> UI: studentOptions
+    UI -> Service: GetAssociationsAsync()
+    Service -> DB: SELECT * FROM Associations ORDER BY Name
+    DB --> Service: List<Association>
+    Service --> UI: associationOptions
+    UI --> User: Display Student & Association dropdowns (Step 3)
+else Invalid Selection
+    UI --> User: Display error: "Sila pilih kelas"
+end
+
+== Step 4: Select Student and Association ==
+User -> UI: Select Student (Pelajar)
+UI -> Model: Set StudentId
+User -> UI: Select Association (Persatuan)
+UI -> Model: Set AssociationId
+UI -> UI: Validate selections
+alt Valid Student & Association Selected
+    UI -> UI: NextStep()
+    UI -> Service: GetCompetitionsAsync()
+    Service -> DB: SELECT * FROM Competitions
+    DB --> Service: List<Competition>
+    Service --> UI: competitionOptions
+    UI --> User: Display Competition dropdown (Step 4)
+else Invalid Selection(s)
+    alt Missing Student
+        UI --> User: Display error: "Sila pilih nama"
+    else Missing Association
+        UI --> User: Display error: "Sila pilih persatuan/kelab"
+    end
+end
+
+== Step 5: Select Competition and Submit ==
+User -> UI: Select Competition (Pertandingan)
+UI -> Model: Set CompetitionId
+User -> UI: Click Submit Registration
+UI -> UI: SubmitRegistration()
+UI -> UI: Validate competition selection
+alt Valid Competition Selected
+    UI -> Service: RegisterAsync(model)
+    Service -> DB: Check existing registration\nSELECT * FROM Registrations WHERE StudentId = model.StudentId
+    DB --> Service: existingRegistration
+    alt Student Not Already Registered
+        Service -> DB: Fetch Student with includes\nSELECT Student, YearOfStudy, Class WHERE Id = model.StudentId
+        DB --> Service: student with navigation properties
+        Service -> DB: Fetch Association\nSELECT * FROM Associations WHERE Id = model.AssociationId
+        DB --> Service: association
+        Service -> DB: Fetch Competition\nSELECT * FROM Competitions WHERE Id = model.CompetitionId
+        DB --> Service: competition
+        Service -> Service: Create Registration entity\nwith RegistrationDate = DateTime.UtcNow
+        Service -> DB: INSERT INTO Registrations\nSaveChangesAsync()
+        DB --> Service: registration with all navigation properties
+        Service --> UI: registration
+        UI -> Nav: NavigateTo("/registration-success?yearName=...&className=...&studentName=...&associationName=...&competitionName=...")
+        Nav --> User: Redirect to Success Page with parameters
+    else Student Already Registered
+        Service --> UI: throw InvalidOperationException("Student already registered")
+        UI --> User: Display error: "Pelajar ini telah didaftarkan"
+    end
+else Invalid Competition Selection
+    UI --> User: Display error: "Sila pilih pertandingan"
+end
+
+== Navigation Features ==
+note over UI
+User can navigate backwards through steps using:
+- PreviousStep() method
+- Progress bar click navigation
+- Browser back button (with state preservation)
+end note
+
+@enduml

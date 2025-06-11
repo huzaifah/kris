@@ -1,0 +1,524 @@
+@page "/admin"
+@using Kris.Models
+@using Kris.Services
+@inject RegistrationService RegistrationService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Ubah Pendaftaran - Karnival Rekacipta dan Inovasi SMAPK 2025</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        <h4 class="mb-0">Ubah Pendaftaran</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <!-- Filter Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-secondary mb-3">
+                                <i class="bi bi-funnel me-2"></i>Tapis Pendaftaran
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="yearFilter" class="form-label">Tingkatan</label>
+                                    <select id="yearFilter" class="form-select" value="@_filterModel.YearOfStudyId" @onchange="OnYearFilterChanged">
+                                        <option value="">-- Semua Tingkatan --</option>
+                                        @foreach (var year in _allYears)
+                                        {
+                                            <option value="@year.Id">@year.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="classFilter" class="form-label">Kelas</label>
+                                    <select id="classFilter" class="form-select" @bind="_filterModel.ClassId">
+                                        <option value="">-- Semua Kelas --</option>
+                                        @foreach (var cls in _filteredClasses)
+                                        {
+                                            <option value="@cls.Id">@cls.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="studentFilter" class="form-label">Nama Pelajar</label>
+                                    <input id="studentFilter" type="text" class="form-control" 
+                                           placeholder="Cari nama pelajar (min. 3 aksara)..." 
+                                           @bind="_filterModel.StudentName"
+                                           @oninput="OnStudentNameInput" />
+                                    @if (!string.IsNullOrWhiteSpace(_filterModel.StudentName) && _filterModel.StudentName.Length < 3)
+                                    {
+                                        <small class="text-muted">Masukkan sekurang-kurangnya 3 aksara untuk mencari</small>
+                                    }
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button class="btn btn-primary me-2" @onclick="ApplyFilters">
+                                        <i class="bi bi-search me-1"></i>Tapis
+                                    </button>
+                                    <button class="btn btn-outline-secondary" @onclick="ClearFilters">
+                                        <i class="bi bi-x-circle me-1"></i>Kosongkan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    @if (_isLoading)
+                    {
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Memuatkan...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Memuatkan data pendaftaran...</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Results Section -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="text-secondary mb-0">
+                                        <i class="bi bi-list-check me-2"></i>
+                                        Hasil Carian (@_filteredRegistrations.Count pendaftaran)
+                                    </h5>
+                                    @if (_filteredRegistrations.Any())
+                                    {
+                                        <small class="text-muted">
+                                            Klik pada dropdown pertandingan untuk mengubah
+                                        </small>
+                                    }
+                                </div>
+
+                                @if (!_filteredRegistrations.Any())
+                                {
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        @if (_filterModel.HasFilters)
+                                        {
+                                            <text>Tiada pendaftaran ditemui dengan kriteria yang dipilih.</text>
+                                        }
+                                        else
+                                        {
+                                            <text>Tiada pendaftaran untuk dipaparkan. Sila guna penapis di atas untuk mencari pendaftaran.</text>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- Registration Table -->
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Nama</th>
+                                                    <th>Kelas</th>
+                                                    <th>Tingkatan</th>
+                                                    <th>Persatuan</th>
+                                                    <th>Pertandingan</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var model in _editModels)
+                                                {
+                                                    <tr class="@(model.HasChanges ? "table-warning" : "")">
+                                                        <td>
+                                                            <strong>@model.StudentName</strong>
+                                                        </td>
+                                                        <td>@model.ClassName</td>
+                                                        <td>@model.YearName</td>
+                                                        <td>@model.AssociationName</td>
+                                                        <td>
+                                                            <select class="form-select form-select-sm" 
+                                                                    @onchange="@((e) => OnCompetitionChanged(model, e))">
+                                                                @foreach (var competition in _competitions)
+                                                                {
+                                                                    <option value="@competition.Id" 
+                                                                            selected="@(competition.Id == model.CompetitionId)">
+                                                                        @competition.Name
+                                                                    </option>
+                                                                }
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            @if (model.HasChanges)
+                                                            {
+                                                                <span class="badge bg-warning text-dark">
+                                                                    <i class="bi bi-exclamation-triangle me-1"></i>Diubah
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-success">
+                                                                    <i class="bi bi-check-circle me-1"></i>Selaras
+                                                                </span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Confirm Changes Panel -->
+                    @if (HasPendingChanges)
+                    {
+                        <div class="alert alert-info border-info mt-4">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-info-circle-fill me-3 mt-1 text-info"></i>
+                                <div class="flex-grow-1">
+                                    <h5 class="alert-heading mb-3">
+                                        Perubahan Belum Disimpan (@PendingChangesCount)
+                                    </h5>
+                                    
+                                    <div class="changes-summary mb-3">
+                                        @foreach (var change in _editModels.Where(x => x.HasChanges))
+                                        {
+                                            <div class="change-item mb-2 p-2 bg-light rounded">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>@change.StudentName</strong> 
+                                                        <span class="text-muted">(@change.ClassName)</span>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <div class="text-muted small">Dari:</div>
+                                                        <div class="small">@change.CurrentCompetitionName</div>
+                                                        <div class="text-muted small mt-1">Kepada:</div>
+                                                        <div class="small fw-bold text-primary">
+                                                            @GetCompetitionName(change.CompetitionId)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-success" @onclick="ConfirmAllChanges" 
+                                                disabled="@_isSaving">
+                                            @if (_isSaving)
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-check-circle me-2"></i>
+                                            }
+                                            Simpan Perubahan (@PendingChangesCount)
+                                        </button>
+                                        <button class="btn btn-outline-secondary" @onclick="CancelAllChanges"
+                                                disabled="@_isSaving">
+                                            <i class="bi bi-x-circle me-2"></i>Batal
+                                        </button>
+                                        <button class="btn btn-outline-warning" @onclick="ResetAllChanges"
+                                                disabled="@_isSaving">
+                                            <i class="bi bi-arrow-clockwise me-2"></i>Tetapkan Semula
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Success/Error Messages -->
+                    @if (!string.IsNullOrEmpty(_successMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show mt-3">
+                            <i class="bi bi-check-circle-fill me-2"></i>@_successMessage
+                            <button type="button" class="btn-close" @onclick="() => _successMessage = null"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(_errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mt-3">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>@_errorMessage
+                            <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-question-circle me-2"></i>Sahkan Perubahan
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">
+                    Adakah anda pasti untuk menyimpan <strong>@PendingChangesCount perubahan</strong> ini?
+                </p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Tindakan ini tidak boleh dibatalkan setelah disimpan.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Batal
+                </button>
+                <button type="button" class="btn btn-success" @onclick="SaveChangesConfirmed">
+                    <i class="bi bi-check-circle me-2"></i>Ya, Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private FilterRegistrationModel _filterModel = new();
+    private List<Registration> _filteredRegistrations = new();
+    private List<EditRegistrationModel> _editModels = new();
+    private List<YearOfStudy> _allYears = new();
+    private List<Class> _allClasses = new();
+    private List<Class> _filteredClasses = new();
+    private List<Competition> _competitions = new();
+    
+    private bool _isLoading = false;
+    private bool _isSaving = false;
+    private string? _successMessage;
+    private string? _errorMessage;
+
+    private bool HasPendingChanges => _editModels.Any(x => x.HasChanges);
+    private int PendingChangesCount => _editModels.Count(x => x.HasChanges);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInitialData();
+    }
+
+    private async Task LoadInitialData()
+    {
+        try
+        {
+            _isLoading = true;
+            
+            // Load all years for filter dropdown
+            _allYears = await RegistrationService.GetYearsAsync();
+            
+            // Load all classes for filter dropdown
+            var allClassesTasks = _allYears.Select(y => RegistrationService.GetClassesByYearAsync(y.Id));
+            var classesResults = await Task.WhenAll(allClassesTasks);
+            _allClasses = classesResults.SelectMany(c => c).ToList();
+            _filteredClasses = _allClasses; // Initially show all classes
+            
+            // Load all competitions
+            _competitions = await RegistrationService.GetCompetitionsAsync();
+            
+            // Load all registrations initially (empty result)
+            await LoadRegistrations();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Ralat memuatkan data: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task LoadRegistrations()
+    {
+        try
+        {
+            _isLoading = true;
+            
+            if (_filterModel.HasFilters)
+            {
+                // Validate student name length if provided
+                var studentNameToSearch = !string.IsNullOrWhiteSpace(_filterModel.StudentName) && _filterModel.StudentName.Length >= 3 
+                    ? _filterModel.StudentName 
+                    : null;
+                
+                _filteredRegistrations = await RegistrationService.GetRegistrationsByFiltersAsync(
+                    _filterModel.YearOfStudyId,
+                    _filterModel.ClassId, 
+                    studentNameToSearch);
+            }
+            else
+            {
+                _filteredRegistrations = new List<Registration>();
+            }
+            
+            _editModels = _filteredRegistrations
+                .Select(EditRegistrationModel.FromRegistration)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Ralat memuatkan pendaftaran: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ApplyFilters()
+    {
+        await LoadRegistrations();
+        _successMessage = null;
+        _errorMessage = null;
+    }
+
+    private async Task ClearFilters()
+    {
+        _filterModel.Clear();
+        _filteredClasses = _allClasses; // Reset to show all classes
+        await LoadRegistrations();
+        _successMessage = null;
+        _errorMessage = null;
+    }
+
+    private Task OnYearFilterChanged(ChangeEventArgs e)
+    {
+        // Update the filter model value
+        if (int.TryParse(e.Value?.ToString(), out int yearId) && yearId > 0)
+        {
+            _filterModel.YearOfStudyId = yearId;
+        }
+        else
+        {
+            _filterModel.YearOfStudyId = null;
+        }
+        
+        // Reset class filter when year changes
+        _filterModel.ClassId = null;
+        
+        // Filter classes based on selected year
+        if (_filterModel.YearOfStudyId.HasValue)
+        {
+            _filteredClasses = _allClasses.Where(c => c.YearOfStudyId == _filterModel.YearOfStudyId.Value).ToList();
+        }
+        else
+        {
+            _filteredClasses = _allClasses;
+        }
+        
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnStudentNameInput(ChangeEventArgs e)
+    {
+        _filterModel.StudentName = e.Value?.ToString();
+        
+        // Only auto-apply filter if we have at least 3 characters
+        if (!string.IsNullOrWhiteSpace(_filterModel.StudentName) && _filterModel.StudentName.Length >= 3)
+        {
+            // Add a short delay to avoid too many API calls while typing
+            await Task.Delay(500);
+            
+            // Check if the value hasn't changed during the delay (debouncing)
+            if (_filterModel.StudentName == e.Value?.ToString() && _filterModel.StudentName.Length >= 3)
+            {
+                await ApplyFilters();
+            }
+        }
+        else if (string.IsNullOrWhiteSpace(_filterModel.StudentName))
+        {
+            // If field is cleared, apply filters to update results
+            await ApplyFilters();
+        }
+        
+        StateHasChanged();
+    }
+
+    private void OnCompetitionChanged(EditRegistrationModel model, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int competitionId))
+        {
+            model.CompetitionId = competitionId;
+            StateHasChanged();
+        }
+    }
+
+    private string GetCompetitionName(int competitionId)
+    {
+        return _competitions.FirstOrDefault(c => c.Id == competitionId)?.Name ?? "Unknown";
+    }
+
+    private async Task ConfirmAllChanges()
+    {
+        await JSRuntime.InvokeVoidAsync("eval", "new bootstrap.Modal(document.getElementById('confirmModal')).show()");
+    }
+
+    private void CancelAllChanges()
+    {
+        foreach (var model in _editModels.Where(x => x.HasChanges))
+        {
+            model.CompetitionId = model.OriginalCompetitionId;
+        }
+        StateHasChanged();
+        _successMessage = "Perubahan dibatalkan.";
+    }
+
+    private void ResetAllChanges()
+    {
+        foreach (var model in _editModels)
+        {
+            model.CompetitionId = model.OriginalCompetitionId;
+        }
+        StateHasChanged();
+        _successMessage = "Semua perubahan ditetapkan semula.";
+    }
+
+    private async Task SaveChangesConfirmed()
+    {
+        try
+        {
+            _isSaving = true;
+            _errorMessage = null;
+            
+            // Hide modal
+            await JSRuntime.InvokeVoidAsync("eval", "bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide()");
+            
+            var updates = _editModels
+                .Where(x => x.HasChanges)
+                .ToDictionary(x => x.RegistrationId, x => x.CompetitionId);
+            
+            if (updates.Any())
+            {
+                await RegistrationService.BatchUpdateRegistrationCompetitionsAsync(updates);
+                
+                // Update original values to reflect saved state
+                foreach (var model in _editModels.Where(x => x.HasChanges))
+                {
+                    model.OriginalCompetitionId = model.CompetitionId;
+                    model.CurrentCompetitionName = GetCompetitionName(model.CompetitionId);
+                }
+                
+                _successMessage = $"Berjaya menyimpan {updates.Count} perubahan!";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Ralat menyimpan perubahan: {ex.Message}";
+        }
+        finally
+        {
+            _isSaving = false;
+            StateHasChanged();
+        }
+    }
+}
